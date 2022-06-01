@@ -22,10 +22,12 @@ import com.exam.prime.bean.PrimeNumReq;
 import com.exam.prime.bean.PrimeNumResp;
 import com.exam.prime.common.ApiResponse;
 import com.exam.prime.helper.PrimeNumAlgoHelper;
+
+import io.swagger.annotations.ApiOperation;
  
 
 @RestController
-@RequestMapping("/primeNumGen")
+@RequestMapping("/api")
 public class PrimeNumController {
 	@Autowired
 	PrimeNumAlgoHelper primeNumAlgoHelper;
@@ -40,14 +42,14 @@ public class PrimeNumController {
 	@Qualifier("MyTemplate")
 	private RedisTemplate template ;
 	
-	@RequestMapping(method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes=MediaType.APPLICATION_JSON_VALUE)
-	public ApiResponse<PrimeNumResp> PrimeNumberGen(@RequestBody PrimeNumReq primeNumReq, HttpServletResponse response) {
+	@RequestMapping(value ="/primeNumGen", method=RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE} , consumes=MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "algorithm should be passed as A for algo complexity of O(n^2) and B for improved algorithm " )
+	public ApiResponse<PrimeNumResp> getPrimeNums(@RequestBody PrimeNumReq primeNumReq, HttpServletResponse response) {
 		final String methodName = "PrimeNumberGen";
 		logger.info(methodName);
 		List<Integer> primeNums;
 		int inputNum = primeNumReq.getInputNum();
-		String appliedAlgorithm = primeNumReq.getAlgorithm();
-		String returnContentType = primeNumReq.getContentType();
+		String appliedAlgorithm = primeNumReq.getAlgorithm();		 
 		System.out.println("Number" + inputNum);
 		String parsedInputNum = null;
 		
@@ -55,10 +57,10 @@ public class PrimeNumController {
 		
 		if (isInputValid) {
 			parsedInputNum=Integer.toString(inputNum);
-			Object cacheData = template.opsForHash().get(HASH_KEY, parsedInputNum) ;
+			PrimeNumResp cacheData = (PrimeNumResp)template.opsForHash().get(HASH_KEY, parsedInputNum) ;
 			if (null !=cacheData) {
 				System.out.println("data from cache");
-				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", (PrimeNumResp)cacheData, null);				
+				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", cacheData, null);				
 			}else  {
 				switch (appliedAlgorithm) {
 				case "A":
@@ -68,7 +70,7 @@ public class PrimeNumController {
 					primeNums=primeNumAlgoHelper.generatePrimeNumbersUsingAlgoB(inputNum);
 					break;
 				default:					
-					primeNums = null;
+					primeNums = primeNums=primeNumAlgoHelper.generatePrimeNumbersUsingAlgoB(inputNum);
 			}
 			primeNumResp.setGeneratedPrimeNums(primeNums);
 			 
@@ -77,7 +79,7 @@ public class PrimeNumController {
 			return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", primeNumResp, null);
 			}
 		}else {
-		return new ApiResponse<PrimeNumResp>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed", primeNumResp, null);
+			return new ApiResponse<PrimeNumResp>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed", primeNumResp, null);
 	}	
 }
 		
