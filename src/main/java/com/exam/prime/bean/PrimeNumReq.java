@@ -1,11 +1,16 @@
-package com.boa.prime.bean;
+package com.exam.prime.bean;
 
+import java.io.Serializable;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PrimeNumReq {
+@RedisHash("PrimeNumReq")
+public class PrimeNumReq implements Serializable{
 	
-
+	@Id
 	private int inputNum;
 	private String algorithm;
 	private String contentType;

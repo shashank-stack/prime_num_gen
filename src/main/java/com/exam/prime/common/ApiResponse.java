@@ -1,4 +1,4 @@
-package com.boa.prime.common;
+package com.exam.prime.common;
 
 import java.util.Map;
 

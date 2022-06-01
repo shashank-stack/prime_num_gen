@@ -1,9 +1,9 @@
-package com.boa.prime;
+package com.exam.prime;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.boa.prime.bean.PrimeNumResp;
+import com.exam.prime.bean.PrimeNumResp;
 
 @SpringBootApplication
 public class PrimeNumberApiApplication {

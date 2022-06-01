@@ -1,6 +1,7 @@
-package com.boa.prime.bean;
+package com.exam.prime.bean;
 
  
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
  
 
 @Component
-public class PrimeNumResp   {
+public class PrimeNumResp implements Serializable  {
 	
 	private List<Integer> generatedPrimeNums = new ArrayList<Integer>() ;
 
