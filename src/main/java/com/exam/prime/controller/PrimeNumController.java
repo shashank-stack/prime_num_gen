@@ -43,7 +43,7 @@ public class PrimeNumController {
 	private RedisTemplate template ;
 	
 	@RequestMapping(value ="/primeNumGen", method=RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE} , consumes=MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "algorithm should be passed as A for algo complexity of O(n^2) and B for improved algorithm " )
+	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "Usage of appliedAlgorithm input : NA - Naive Alogithm, INA - Improvised Naive Algorithm, SSA - Simple Sieve Algorithm, SGSA, Segmented Sieve Algorithm " )
 	public ApiResponse<PrimeNumResp> getPrimeNums(@RequestBody PrimeNumReq primeNumReq, HttpServletResponse response) {
 		final String methodName = "PrimeNumberGen";
 		logger.info(methodName);
@@ -63,14 +63,20 @@ public class PrimeNumController {
 				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", cacheData, null);				
 			}else  {
 				switch (appliedAlgorithm) {
-				case "A":
-					primeNums=primeNumAlgoHelper.generatePrimeNumbersUsingAlgoA(inputNum);
+				case "NA":
+					primeNums=primeNumAlgoHelper.genPrimeNumsNaiveAlgo(inputNum);
 					break;
-				case "B":
-					primeNums=primeNumAlgoHelper.generatePrimeNumbersUsingAlgoB(inputNum);
+				case "INA":
+					primeNums=primeNumAlgoHelper.genPrimeNumImprovisedNaiveAlgo(inputNum);
+					break;
+				case "SSA":
+					primeNums=primeNumAlgoHelper.genPrimeNumSimpleSieveAlgo(inputNum);
+					break;
+				case "SGSA":
+					primeNums=primeNumAlgoHelper.genPrimeNumUsingSegSieveAlgo(inputNum);
 					break;
 				default:					
-					primeNums = primeNums=primeNumAlgoHelper.generatePrimeNumbersUsingAlgoB(inputNum);
+					primeNums=primeNumAlgoHelper.genPrimeNumUsingSegSieveAlgo(inputNum);
 			}
 			primeNumResp.setGeneratedPrimeNums(primeNums);
 			 
