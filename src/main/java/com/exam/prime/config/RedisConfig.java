@@ -1,4 +1,4 @@
-package com.exam.prime.redis;
+package com.exam.prime.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -1,10 +1,9 @@
 package com.exam.prime.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.exam.prime.bean.PrimeNumReq;
 import com.exam.prime.bean.PrimeNumResp;
 import com.exam.prime.common.ApiResponse;
-import com.exam.prime.helper.PrimeNumAlgoHelper;
+import com.exam.prime.common.PrimeNumAlgoExecutor;
+import com.exam.prime.service.SelectAlgorithmService;
 
 import io.swagger.annotations.ApiOperation;
  
@@ -30,7 +30,7 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping("/api")
 public class PrimeNumController {
 	@Autowired
-	PrimeNumAlgoHelper primeNumAlgoHelper;
+	SelectAlgorithmService selectAlgorithmService;
 	
 	@Autowired
 	PrimeNumResp primeNumResp;
@@ -44,8 +44,8 @@ public class PrimeNumController {
 	
 	@RequestMapping(value ="/primeNumGen", method=RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE} , consumes=MediaType.APPLICATION_JSON_VALUE)
 	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "Usage of appliedAlgorithm input : NA - Naive Alogithm, INA - Improvised Naive Algorithm, SSA - Simple Sieve Algorithm, SGSA, Segmented Sieve Algorithm " )
-	public ApiResponse<PrimeNumResp> getPrimeNums(@RequestBody PrimeNumReq primeNumReq, HttpServletResponse response) {
-		final String methodName = "PrimeNumberGen";
+	public ApiResponse<PrimeNumResp> getPrimeNums(@RequestBody PrimeNumReq primeNumReq) {
+		final String methodName = "getPrimeNums";
 		logger.info(methodName);
 		List<Integer> primeNums;
 		int inputNum = primeNumReq.getInputNum();
@@ -53,43 +53,26 @@ public class PrimeNumController {
 		System.out.println("Number" + inputNum);
 		String parsedInputNum = null;
 		
-		boolean isInputValid =primeNumAlgoHelper.isNumValidForPrimeNumGeneration(inputNum);
-		
+		boolean isInputValid =selectAlgorithmService.isNumValidForPrimeNumGeneration(inputNum);		
 		if (isInputValid) {
 			parsedInputNum=Integer.toString(inputNum);
 			PrimeNumResp cacheData = (PrimeNumResp)template.opsForHash().get(HASH_KEY, parsedInputNum) ;
 			if (null !=cacheData) {
-				System.out.println("data from cache");
+				logger.info("data Fetched from cache " + inputNum);
 				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", cacheData, null);				
 			}else  {
-				switch (appliedAlgorithm) {
-				case "NA":
-					primeNums=primeNumAlgoHelper.genPrimeNumsNaiveAlgo(inputNum);
-					break;
-				case "INA":
-					primeNums=primeNumAlgoHelper.genPrimeNumImprovisedNaiveAlgo(inputNum);
-					break;
-				case "SSA":
-					primeNums=primeNumAlgoHelper.genPrimeNumSimpleSieveAlgo(inputNum);
-					break;
-				case "SGSA":
-					primeNums=primeNumAlgoHelper.genPrimeNumUsingSegSieveAlgo(inputNum);
-					break;
-				default:					
-					primeNums=primeNumAlgoHelper.genPrimeNumUsingSegSieveAlgo(inputNum);
-			}
-			primeNumResp.setGeneratedPrimeNums(primeNums);
-			 
+				primeNums = selectAlgorithmService.selectAlgo(appliedAlgorithm,inputNum );
+				
+			primeNumResp.setGeneratedPrimeNums(primeNums);			 
 			template.opsForHash().put(HASH_KEY,parsedInputNum, primeNumResp);			
-			System.out.println("data put in cache");
+			logger.info("data put in cache " + inputNum);
 			return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", primeNumResp, null);
 			}
 		}else {
-			return new ApiResponse<PrimeNumResp>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed", primeNumResp, null);
-	}	
-}
-		
-		 
-	
-
+			logger.error("Supplied number in input is Invalid " + inputNum);
+			Map<String,Object> additionalResponse  = new HashMap<String, Object>();
+			additionalResponse.put("InputNum", "Supplied input number in input is Invalid ");
+			return new ApiResponse<PrimeNumResp>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed", primeNumResp, additionalResponse);
+		}	
+	}
 }

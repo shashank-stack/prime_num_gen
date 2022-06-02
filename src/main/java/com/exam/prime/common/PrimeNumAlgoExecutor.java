@@ -1,4 +1,4 @@
-package com.exam.prime.helper;
+package com.exam.prime.common;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,23 +6,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.exam.prime.controller.PrimeNumController;
 import static java.lang.Math.sqrt;
 import static java.lang.Math.floor;
 
 @Component
-public class PrimeNumAlgoHelper {	
+public class PrimeNumAlgoExecutor {	
 	 
-	private Logger logger = LoggerFactory.getLogger(PrimeNumController.class);
+	private Logger logger = LoggerFactory.getLogger(PrimeNumAlgoExecutor.class);
 	List<Integer> primeNums = new ArrayList<>();
-	
-	public boolean isNumValidForPrimeNumGeneration(int inputNum) {
-		
-		if (inputNum ==1 || inputNum <=0) {
-			return false;
-		}		
-		return true;
-	}
 	
 	//Naive Algorithm(NA)
 	public List<Integer> genPrimeNumsNaiveAlgo(int inputNum){
@@ -133,4 +124,6 @@ public class PrimeNumAlgoHelper {
 		}
 		return primeNums;
 	}
+
+	
 }
