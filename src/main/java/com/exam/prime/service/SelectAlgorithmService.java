@@ -1,5 +1,6 @@
 package com.exam.prime.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,27 +12,25 @@ import com.exam.prime.common.PrimeNumAlgoExecutor;
 public class SelectAlgorithmService {
 	
 	@Autowired
-	private PrimeNumAlgoExecutor primeNumAlgoService;
+	private PrimeNumAlgoExecutor primeNumAlgoExecutor;
 	
-	List<Integer> primeNums;
+	
 	
 	public List<Integer> selectAlgo(String appliedAlgorithm, int inputNum) {
 		// TODO Auto-generated method stub
+		List<Integer> primeNums = new ArrayList<>();
 		switch (appliedAlgorithm) {
 		case "NA":
-			primeNums=primeNumAlgoService.genPrimeNumsNaiveAlgo(inputNum);
+			primeNums=primeNumAlgoExecutor.genPrimeNumsNaiveAlgo(inputNum);
 			break;
 		case "INA":
-			primeNums=primeNumAlgoService.genPrimeNumImprovisedNaiveAlgo(inputNum);
+			primeNums=primeNumAlgoExecutor.genPrimeNumImprovisedNaiveAlgo(inputNum);
 			break;
 		case "SSA":
-			primeNums=primeNumAlgoService.genPrimeNumSimpleSieveAlgo(inputNum);
-			break;
-		case "SGSA":
-			primeNums=primeNumAlgoService.genPrimeNumUsingSegSieveAlgo(inputNum);
-			break;
+			primeNums=primeNumAlgoExecutor.genPrimeNumSimpleSieveAlgo(inputNum);
+			break; 
 		default:					
-			primeNums=primeNumAlgoService.genPrimeNumUsingSegSieveAlgo(inputNum);
+			primeNums=primeNumAlgoExecutor.genPrimeNumSimpleSieveAlgo(inputNum);
 		}
 		return primeNums;
 	}

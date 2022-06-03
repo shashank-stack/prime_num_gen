@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +23,7 @@ import com.exam.prime.service.CustomUserDetailsService;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	
+	private Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService ;
 	@Autowired
@@ -34,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String userName= null;
 		String jwtToken = null;
 		
-if(requestTokenHeader!=null && requestTokenHeader.startsWith("Bearer ")) {
+		if(requestTokenHeader!=null && requestTokenHeader.startsWith("Bearer ")) {
 			
 			jwtToken=requestTokenHeader.substring(7);
 			
@@ -44,7 +47,7 @@ if(requestTokenHeader!=null && requestTokenHeader.startsWith("Bearer ")) {
 			}
 			
 			catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());	 
 			}
 			
 			UserDetails userDetails=this.customUserDetailsService.loadUserByUsername(userName);
@@ -57,9 +60,9 @@ if(requestTokenHeader!=null && requestTokenHeader.startsWith("Bearer ")) {
 				
 				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 			}
-			else {
-				System.out.println("Token is not validated");
-			}
+		else {				
+			logger.error("Token is not validated");
+		}
 			
 			
 		}

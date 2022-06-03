@@ -1,9 +1,8 @@
 package com.exam.prime.controller;
 
 
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.exam.prime.bean.PrimeNumReq;
 import com.exam.prime.bean.PrimeNumResp;
 import com.exam.prime.common.ApiResponse;
-import com.exam.prime.common.PrimeNumAlgoExecutor;
+import com.exam.prime.exception.InvalidInputException;
 import com.exam.prime.service.SelectAlgorithmService;
 
 import io.swagger.annotations.ApiOperation;
@@ -43,15 +42,20 @@ public class PrimeNumController {
 	private RedisTemplate template ;
 	
 	@RequestMapping(value ="/primeNumGen", method=RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE} , consumes=MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "Usage of appliedAlgorithm input : NA - Naive Alogithm, INA - Improvised Naive Algorithm, SSA - Simple Sieve Algorithm, SGSA, Segmented Sieve Algorithm " )
+	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "Usage of appliedAlgorithm input : NA - Naive Alogithm, INA - Improvised Naive Algorithm, SSA - Simple Sieve Algorithm" )
 	public ApiResponse<PrimeNumResp> getPrimeNums(@RequestBody PrimeNumReq primeNumReq) {
 		final String methodName = "getPrimeNums";
 		logger.info(methodName);
-		List<Integer> primeNums;
+		List<Integer> primeNums = null;
 		int inputNum = primeNumReq.getInputNum();
 		String appliedAlgorithm = primeNumReq.getAlgorithm();		 
 		System.out.println("Number" + inputNum);
 		String parsedInputNum = null;
+		
+//		for (int i = 0 ; i < 200 ; i ++) {
+//			template.opsForHash().delete(parsedInputNum=Integer.toString(i), HASH_KEY) ;
+//		}
+		
 		
 		boolean isInputValid =selectAlgorithmService.isNumValidForPrimeNumGeneration(inputNum);		
 		if (isInputValid) {
@@ -70,9 +74,7 @@ public class PrimeNumController {
 			}
 		}else {
 			logger.error("Supplied number in input is Invalid " + inputNum);
-			Map<String,Object> additionalResponse  = new HashMap<String, Object>();
-			additionalResponse.put("InputNum", "Supplied input number in input is Invalid ");
-			return new ApiResponse<PrimeNumResp>(HttpStatus.INTERNAL_SERVER_ERROR, "Failed", primeNumResp, additionalResponse);
+			throw new InvalidInputException("1000", "Input number should be greater than 1");		 
 		}	
 	}
 }

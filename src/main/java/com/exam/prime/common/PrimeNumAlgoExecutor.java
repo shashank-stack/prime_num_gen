@@ -13,11 +13,13 @@ import static java.lang.Math.floor;
 public class PrimeNumAlgoExecutor {	
 	 
 	private Logger logger = LoggerFactory.getLogger(PrimeNumAlgoExecutor.class);
-	List<Integer> primeNums = new ArrayList<>();
+	
 	
 	//Naive Algorithm(NA)
 	public List<Integer> genPrimeNumsNaiveAlgo(int inputNum){
-		
+		final String methodName = "genPrimeNumsNaiveAlgo";
+		logger.debug(methodName);
+		List<Integer> primeNums = new ArrayList<>();
 		for (int i = 2 ; i <=inputNum ; i++) {
 			if (isInputNumPrimeAlgoA(i)) {
 				primeNums.add(i);
@@ -27,6 +29,8 @@ public class PrimeNumAlgoExecutor {
 	}
 	
 	public boolean isInputNumPrimeAlgoA(int num) {
+		final String methodName = "isInputNumPrimeAlgoA";
+		logger.debug(methodName);
 		
 		for (int j =2 ; j <num ; j++) {
 			if (num  % j ==0 ) {
@@ -39,12 +43,14 @@ public class PrimeNumAlgoExecutor {
 	
 	//Improvised Naive Algorithm(INA)
 	public List<Integer> genPrimeNumImprovisedNaiveAlgo(int inputNum){
-		
+		final String methodName = "genPrimeNumImprovisedNaiveAlgo";
+		logger.debug(methodName);
+		List<Integer> primeNums = new ArrayList<>();
 		if(inputNum >=2) {
 			primeNums.add(2);
 		}	
 		
-		for (int i = 3 ; i <=inputNum ; i=i+2) {
+		for (int i = 3 ; i <=inputNum ; i+=2) {
 			if (isInputNumPrimeAlgoB(i)) {
 				primeNums.add(i);
 			}			
@@ -53,27 +59,23 @@ public class PrimeNumAlgoExecutor {
 	}
 	
 	public boolean isInputNumPrimeAlgoB(int num) {
-		
-		for (int j =2 ; j*j <num ; j++) {
-			if (num  % j ==0 ) {
+		final String methodName = "isInputNumPrimeAlgoB";
+		logger.debug(methodName);
+		for (int j =2 ; j*j <= num ; j++) {
+			if (num  % j == 0 ) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public List<Integer> getPrimeNums() {
-		return primeNums;
-	}
-
-	public void setPrimeNums(List<Integer> primeNums) {
-		this.primeNums = primeNums;
-	}
-	
+ 
 	
 	//Simple Sieve Algorithm(SSA)
 	public synchronized List<Integer>  genPrimeNumSimpleSieveAlgo (int inputNum){
-		
+		final String methodName = "genPrimeNumSimpleSieveAlgo";
+		logger.debug(methodName);
+		List<Integer> primeNumsSSA = new ArrayList<>();
 		boolean[] isPrime = new boolean[inputNum];
 		isPrime[0]= false;
 		for (int m=1 ; m<inputNum ; m++) {
@@ -81,49 +83,12 @@ public class PrimeNumAlgoExecutor {
 		}		
 		for (int i = 2 ; i<=inputNum ; i ++) {
 			if (isPrime[i-1]) {				
-				primeNums.add(i);
+				primeNumsSSA.add(i);
 				for (int j= i*i ; j <=inputNum; j +=i) {
 					isPrime[j-1] = false;
 				}				
 			}
 		}		
-		return primeNums;
-	}
-	
-	//Segmented Sieve Algorithm(SGSA)
-	public List<Integer> genPrimeNumUsingSegSieveAlgo (int inputNum){
-		
-		int limit = (int) (floor(sqrt(inputNum))+1);		 
-		genPrimeNumSimpleSieveAlgo(limit);
-		int low = limit;
-		int high = 2* limit;
-		while (low< inputNum) {
-			if(high>=inputNum) {
-				high = inputNum ;
-			}
-			boolean isPrime[] = new boolean[limit+1];
-			for (int i = 0; i < isPrime.length; i++) {
-				isPrime[i] = true;
-			}
-			
-			for (int i = 0; i < primeNums.size(); i++) {
-				int loLim = (int) (floor(low/primeNums.get(i)) * primeNums.get(i));
-                if (loLim < low)
-                    loLim += primeNums.get(i);
-                
-                for (int j=loLim; j<high; j+=primeNums.get(i)) {
-                	isPrime[j-low] = false;
-                }
-			}
-                for (int i = low; i<high; i++) {
-                	 if (isPrime[i - low] == true)
-                		 primeNums.add(i);
-                }
-                low  = low + limit;
-                high = high + limit;                     
-		}
-		return primeNums;
-	}
-
-	
+		return primeNumsSSA;
+	}	
 }
