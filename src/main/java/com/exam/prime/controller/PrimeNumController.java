@@ -1,7 +1,5 @@
 package com.exam.prime.controller;
 
-
-
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -23,58 +21,53 @@ import com.exam.prime.exception.InvalidInputException;
 import com.exam.prime.service.SelectAlgorithmService;
 
 import io.swagger.annotations.ApiOperation;
- 
 
 @RestController
 @RequestMapping("/api")
 public class PrimeNumController {
 	@Autowired
 	SelectAlgorithmService selectAlgorithmService;
-	
+
 	@Autowired
 	PrimeNumResp primeNumResp;
 	private Logger logger = LoggerFactory.getLogger(PrimeNumController.class);
-	
+
 	public static final String HASH_KEY = "PrimeNumReq";
-	
+
 	@Autowired
 	@Qualifier("MyTemplate")
-	private RedisTemplate template ;
-	
-	@RequestMapping(value ="/primeNumGen", method=RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE} , consumes=MediaType.APPLICATION_JSON_VALUE)
-	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes= "Usage of appliedAlgorithm input : NA - Naive Alogithm, INA - Improvised Naive Algorithm, SSA - Simple Sieve Algorithm" )
+	private RedisTemplate template;
+
+	@RequestMapping(value = "/primeNumGen", method = RequestMethod.POST, produces = { MediaType.APPLICATION_JSON_VALUE,
+			MediaType.APPLICATION_XML_VALUE }, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ApiOperation(value = "all the prime numbers up to and including a number provided", notes = "Usage of appliedAlgorithm input : NA - Naive Alogithm, INA - Improvised Naive Algorithm, SSA - Simple Sieve Algorithm")
 	public ApiResponse<PrimeNumResp> getPrimeNums(@RequestBody PrimeNumReq primeNumReq) {
 		final String methodName = "getPrimeNums";
 		logger.info(methodName);
 		List<Integer> primeNums = null;
 		int inputNum = primeNumReq.getInputNum();
-		String appliedAlgorithm = primeNumReq.getAlgorithm();		 
+		String appliedAlgorithm = primeNumReq.getAlgorithm();
 		System.out.println("Number" + inputNum);
 		String parsedInputNum = null;
-		
-//		for (int i = 0 ; i < 200 ; i ++) {
-//			template.opsForHash().delete(parsedInputNum=Integer.toString(i), HASH_KEY) ;
-//		}
-		
-		
-		boolean isInputValid =selectAlgorithmService.isNumValidForPrimeNumGeneration(inputNum);		
+
+		boolean isInputValid = selectAlgorithmService.isNumValidForPrimeNumGeneration(inputNum);
 		if (isInputValid) {
-			parsedInputNum=Integer.toString(inputNum);
-			PrimeNumResp cacheData = (PrimeNumResp)template.opsForHash().get(HASH_KEY, parsedInputNum) ;
-			if (null !=cacheData) {
+			parsedInputNum = Integer.toString(inputNum);
+			PrimeNumResp cacheData = (PrimeNumResp) template.opsForHash().get(HASH_KEY, parsedInputNum);
+			if (null != cacheData) {
 				logger.info("data Fetched from cache " + inputNum);
-				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", cacheData, null);				
-			}else  {
-				primeNums = selectAlgorithmService.selectAlgo(appliedAlgorithm,inputNum );
-				
-			primeNumResp.setGeneratedPrimeNums(primeNums);			 
-			template.opsForHash().put(HASH_KEY,parsedInputNum, primeNumResp);			
-			logger.info("data put in cache " + inputNum);
-			return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", primeNumResp, null);
+				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", cacheData, null);
+			} else {
+				primeNums = selectAlgorithmService.selectAlgo(appliedAlgorithm, inputNum);
+
+				primeNumResp.setGeneratedPrimeNums(primeNums);
+				template.opsForHash().put(HASH_KEY, parsedInputNum, primeNumResp);
+				logger.info("data put in cache " + inputNum);
+				return new ApiResponse<PrimeNumResp>(HttpStatus.OK, "Fetched Successfully", primeNumResp, null);
 			}
-		}else {
+		} else {
 			logger.error("Supplied number in input is Invalid " + inputNum);
-			throw new InvalidInputException("1000", "Input number should be greater than 1");		 
-		}	
+			throw new InvalidInputException("1000", "Input number should be greater than 1");
+		}
 	}
 }

@@ -1,6 +1,5 @@
 package com.exam.prime.controller;
 
- 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,44 +18,42 @@ import com.exam.prime.bean.JwtRequest;
 import com.exam.prime.bean.JwtResponse;
 import com.exam.prime.common.JwtTokenUtil;
 import com.exam.prime.exception.InvalidCredentialsException;
-import com.exam.prime.exception.InvalidInputException;
 import com.exam.prime.service.CustomUserDetailsService;
 
- 
 @RestController
 public class JwtController {
-	
+
 	private Logger logger = LoggerFactory.getLogger(JwtController.class);
-	
+
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
-	
+
 	@Autowired
 	private JwtTokenUtil jwtUtil;
-	
+
 	@Autowired
 	private AuthenticationManager authenticationManager;
-	
-	
-	@RequestMapping(value="/token", method = RequestMethod.POST)
-	public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest) throws Exception{
-		
+
+	@RequestMapping(value = "/token", method = RequestMethod.POST)
+	public ResponseEntity<?> generateToken(@RequestBody JwtRequest jwtRequest) throws Exception {
+
 		try {
-			
-			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(jwtRequest.getUserName(), jwtRequest.getPassword()));
-			
+
+			this.authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(jwtRequest.getUserName(), jwtRequest.getPassword()));
+
 		} catch (UsernameNotFoundException e) {
-			logger.error("Bad Credentials");		
-			throw new InvalidCredentialsException("2000", "UserId not registered");
-		}catch (BadCredentialsException e ) {			
 			logger.error("Bad Credentials");
-			throw new InvalidInputException("3000", "UserId or password is invalid");
+			throw new InvalidCredentialsException("2000", "UserId not registered");
+		} catch (BadCredentialsException e) {
+			logger.error("Bad Credentials");
+			throw new InvalidCredentialsException("3000", "UserId or password is invalid");
 		}
-		
+
 		UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(jwtRequest.getUserName());
-		String generatedToken = this.jwtUtil.generateToken(userDetails);			
+		String generatedToken = this.jwtUtil.generateToken(userDetails);
 		return ResponseEntity.ok(new JwtResponse(generatedToken));
-		
+
 	}
 
 }

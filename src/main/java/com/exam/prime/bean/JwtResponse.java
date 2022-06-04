@@ -1,17 +1,16 @@
 package com.exam.prime.bean;
 
 public class JwtResponse {
-	
-	String token ;
-	
-	
+
+	String token;
+
 	public JwtResponse(String token) {
-		 
+
 		this.token = token;
 	}
 
 	public JwtResponse() {
- 
+
 	}
 
 	public String getToken() {
