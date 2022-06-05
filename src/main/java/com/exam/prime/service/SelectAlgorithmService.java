@@ -17,6 +17,9 @@ public class SelectAlgorithmService {
 	public List<Integer> selectAlgo(String appliedAlgorithm, int inputNum) {
 		// TODO Auto-generated method stub
 		List<Integer> primeNums = new ArrayList<>();
+		if (null == appliedAlgorithm) {
+			appliedAlgorithm ="";
+		}
 		switch (appliedAlgorithm) {
 		case "NA":
 			primeNums = primeNumAlgoExecutor.genPrimeNumsNaiveAlgo(inputNum);
